@@ -181,17 +181,41 @@ for i in range(air_rel.shape[1]):
 # =============================================================================
 
 
+# Feng adjustment
+import matplotlib.dates as mdates
+from matplotlib import pyplot as plt
+from matplotlib.ticker import MultipleLocator
 
+unit1 = ['degree Celsius','hpa','%','m/s','direation','mm']
+title1 = ['tempeture','pressure','humidity','wind speed','wind direation','rainfaill']
 
+# Convert the format of date
+wea.index = pd.to_datetime(wea.time.astype(str), format='%Y%m%d%H%M%S')
+wea.index.name = 'Date'
 
+wea_rel = wea['weather'].str.split(',',expand=True)
+wea_adj= wea_rel.fillna(method='ffill')
+wea_adj.columns = title1
 
+# Creat an object diagram
+fig, ax = plt.subplots(figsize=(14, 6))
 
+# Convert the data format to a numeric type
+wea_adj['tempeture'] = pd.to_numeric(wea_adj['tempeture'])
+plt.plot(wea_adj.index.values, wea_adj['tempeture'])
 
+upIntrv   = round(max(wea_adj['tempeture'])) + 1
+downIntrv = round(min(wea_adj['tempeture'])) - 1
 
+plt.yticks(np.arange(downIntrv, upIntrv,step=0.5))
+plt.xticks(rotation = 20)
+plt.xlabel('Time')
+plt.ylabel(unit1[0])
 
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%m/%d %H:%M"))
+minorLocator = MultipleLocator(5)
+ax.xaxis.set_minor_locator(minorLocator)
 
-
-
-
-
-
+plt.show()
+fig.savefig('test.jpg', dpi= 400)
+plt.show()
